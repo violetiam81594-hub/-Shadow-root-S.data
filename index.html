@@ -3,75 +3,37 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#10131c">
-  <meta name="description" content="GitLit is a community catalog for creative coding assets and reusable UI elements.">
-  <title>GitLit — Creative coding, shared</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="description" content="A community commons for naming, sharing, and safely previewing creative web elements.">
+  <title>GitLit — Creative elements commons</title>
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="app.js"></script>
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="#home" aria-label="GitLit home"><span class="brand-mark">✳</span> GitLit</a>
-    <nav aria-label="Main navigation">
-      <a href="#explore">Explore</a><a href="#create">Create</a><a href="#github">GitHub</a>
-    </nav>
-    <button class="button button-small" id="export-button" type="button">Export library</button>
-  </header>
-
+  <header class="topbar"><a class="brand" href="#home">✳ GitLit</a><nav><a href="#explore">Explore</a><a href="#create">Create</a><a href="#about">Commons rules</a></nav><button id="export-button" class="quiet-button" type="button">Export my library</button></header>
   <main id="home">
-    <section class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">A little corner of the open web</p>
-        <h1>Make a thing.<br><span>Give it a name.</span></h1>
-        <p class="hero-intro">A community catalog for the wonderfully specific bits of creative code: icons, fonts, stylesheets, buttons, and the ideas that don't fit in a box.</p>
-        <a class="button" href="#create">Add your creation <span aria-hidden="true">↗</span></a>
-      </div>
-      <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="art-star">✳</div><span class="art-label">MAKE / SHARE / REMIX</span></div>
-    </section>
-
-    <section class="section" id="explore">
-      <div class="section-heading">
-        <div><p class="eyebrow">The community shelf</p><h2>Explore elements</h2></div>
-        <label class="search"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Search names, tags, makers…" aria-label="Search elements"></label>
-      </div>
-      <div class="filters" role="group" aria-label="Filter by element type">
-        <button class="filter active" data-kind="all" type="button">All</button>
-        <button class="filter" data-kind="icon" type="button">Icons</button>
-        <button class="filter" data-kind="font" type="button">Fonts</button>
-        <button class="filter" data-kind="stylesheet" type="button">Stylesheets</button>
-        <button class="filter" data-kind="button" type="button">Buttons</button>
-        <button class="filter" data-kind="other" type="button">Other ideas</button>
-      </div>
-      <div id="catalog" class="catalog" aria-live="polite"></div>
-      <p class="empty-state" id="empty-state" hidden>No elements match yet. Try another search, or add the first one.</p>
-    </section>
-
-    <section class="section create-section" id="create">
-      <div class="section-heading"><div><p class="eyebrow">Put your name on it</p><h2>Share an element</h2></div><p class="section-note">Your library is saved in this browser. Export it as JSON to keep a backup or share it.</p></div>
-      <form id="create-form" class="create-form">
-        <label>Element name<input name="name" required maxlength="70" placeholder="e.g. Jellybean hover button"></label>
-        <label>Type<select name="kind" required><option value="icon">Icon</option><option value="font">Font</option><option value="stylesheet">Stylesheet</option><option value="button">Button</option><option value="other">Other creative code</option></select></label>
-        <label>Creator name<input name="creator" required maxlength="50" placeholder="Your name or handle"></label>
-        <label>Tags, separated by commas<input name="tags" maxlength="120" placeholder="pastel, hover, playful"></label>
-        <label class="wide">What is it?<textarea name="description" required maxlength="240" rows="3" placeholder="Tell people what makes your element useful or strange."></textarea></label>
-        <label>License<select name="license"><option>MIT</option><option>Apache-2.0</option><option>CC-BY-4.0</option><option>CC0-1.0</option><option>All rights reserved</option><option>Custom — see terms</option></select></label>
-        <label>Price (display only)<div class="price-input"><span>$</span><input name="price" type="number" min="0" max="100000" step="0.01" value="0" inputmode="decimal"></div></label>
-        <label class="wide">Terms and conditions<textarea name="terms" maxlength="500" rows="3" placeholder="Attribution, remixing, and use terms. This is a notice, not legal advice."></textarea></label>
-        <label class="wide">Code or asset reference <span class="optional">(optional; keep it non-executable)</span><textarea name="snippet" maxlength="1200" rows="5" placeholder="Paste a CSS snippet, SVG markup, font URL, or GitHub file URL. GitLit displays this as text; it does not execute it."></textarea></label>
-        <label class="wide consent"><input name="confirm" type="checkbox" required><span>I have permission to share this work and understand the license and terms are my responsibility.</span></label>
-        <div class="wide form-actions"><button class="button" type="submit">Add to my library <span aria-hidden="true">↗</span></button><span id="form-message" class="form-message" role="status"></span></div>
+    <section class="hero"><p class="eyebrow">A creative commons for the web</p><h1>Small creations.<br><span>Clear permissions.</span></h1><p>Share the icons, favicons, fonts, styles, buttons, scripts, and tiny app ideas that make the web yours. Creators choose what they grant; everyone can inspect a safe preview before using an element.</p><a class="primary-button" href="#create">Create a listing ↓</a><div class="hero-note">A GitHub Pages pilot · no account or payment handling yet</div></section>
+    <section id="explore" class="section"><div class="section-title"><div><p class="eyebrow">Community shelf</p><h2>Explore creations</h2></div><input id="search" type="search" placeholder="Search names, types, creators…" aria-label="Search creations"></div><div class="filters"><button class="filter active" data-kind="all">All</button><button class="filter" data-kind="favicon">Favicons</button><button class="filter" data-kind="icon">Icons</button><button class="filter" data-kind="font">Fonts</button><button class="filter" data-kind="stylesheet">Stylesheets</button><button class="filter" data-kind="button">Buttons</button><button class="filter" data-kind="web-app">Web apps</button><button class="filter" data-kind="script">Scripts / extensions</button></div><div id="catalog" class="catalog" aria-live="polite"></div><p id="empty" class="empty" hidden>No creations found. Try another search or add one.</p></section>
+    <section id="create" class="section create-section"><div class="section-title"><div><p class="eyebrow">Creator controls</p><h2>List a creation</h2></div><p class="side-note">Set usage permissions and runtime capabilities independently. A license grants rights; a capability requests what a component may do.</p></div>
+      <form id="create-form" class="form">
+        <label>Name<input name="name" required maxlength="80" placeholder="e.g. Jellybean toggle"></label>
+        <label>Element type<select name="kind"><option>favicon</option><option>icon</option><option>font</option><option>stylesheet</option><option>button</option><option>web-app</option><option>script</option><option>extension</option><option>other</option></select></label>
+        <label>Creator / handle<input name="creator" required maxlength="60" placeholder="Your name"></label>
+        <label>Price (display only)<div class="price-input"><span>$</span><input name="price" type="number" min="0" max="100000" step="0.01" value="0"></div></label>
+        <label class="full">Description<textarea name="description" maxlength="300" required rows="2" placeholder="What does it look like or do?"></textarea></label>
+        <label>Source URL<input name="sourceUrl" type="url" placeholder="https://github.com/you/project"></label>
+        <label>Source map URL <span class="hint">Optional; debugging aid, not a security control</span><input name="sourceMapUrl" type="url" placeholder="https://…/asset.js.map"></label>
+        <fieldset class="full"><legend>Usage rights you grant</legend><p class="hint">Choose the permissions consumers receive under your stated license/terms.</p><div class="checks"><label><input type="checkbox" name="grant" value="view" checked> View / inspect</label><label><input type="checkbox" name="grant" value="reuse"> Reuse</label><label><input type="checkbox" name="grant" value="remix"> Modify / remix</label><label><input type="checkbox" name="grant" value="commercial"> Commercial use</label><label><input type="checkbox" name="grant" value="redistribute"> Redistribute</label></div></fieldset>
+        <fieldset class="full"><legend>Requested runtime capabilities</legend><p class="hint">These describe the preview/demo only. GitLit never runs uploaded code. Network access, host-page access, device access, and arbitrary scripts are not granted here.</p><div class="checks"><label><input type="checkbox" name="capability" value="visual" checked> Render visual preview</label><label><input type="checkbox" name="capability" value="local-toggle"> Local toggle interaction</label><label><input type="checkbox" name="capability" value="preview-style"> Apply style to preview only</label></div></fieldset>
+        <label>License<select name="license"><option>MIT</option><option>Apache-2.0</option><option>CC-BY-4.0</option><option>CC-BY-SA-4.0</option><option>CC0-1.0</option><option>Custom terms</option><option>All rights reserved</option></select></label>
+        <label>Preview accent color<input name="accent" type="color" value="#7654d9"></label>
+        <label class="full">Terms / attribution notes<textarea name="terms" maxlength="500" rows="2" placeholder="Attribution requirements, restrictions, or other notes."></textarea></label>
+        <label class="full">Code or asset reference <span class="hint">Shown as plain text only; never executed</span><textarea name="snippet" maxlength="2000" rows="4" placeholder="Optional CSS, SVG, app/script source excerpt, or file path"></textarea></label>
+        <label class="consent full"><input type="checkbox" name="confirm" required> I have the right to share this work and am responsible for the license and terms I choose.</label>
+        <div class="full form-actions"><button class="primary-button" type="submit">Add to my library</button><span id="status" role="status"></span></div>
       </form>
     </section>
-
-    <section class="section github-section" id="github">
-      <div class="github-copy"><p class="eyebrow">Connected to the open web</p><h2>Find public GitHub projects</h2><p>Search public repositories for inspiration, then link your element to its source. GitLit never asks for a password or access token.</p></div>
-      <form id="github-search-form" class="github-search"><label for="github-query">Search GitHub repositories</label><div class="search-row"><input id="github-query" name="q" required maxlength="80" placeholder="e.g. creative coding icons"><button class="button" type="submit">Search GitHub</button></div><p class="muted" id="github-message" role="status">Uses GitHub's public repository search; API rate limits may apply.</p><div id="github-results" class="github-results" aria-live="polite"></div></form>
-    </section>
+    <section id="about" class="section about"><p class="eyebrow">Commons, with boundaries</p><h2>Preview safely. Choose intentionally.</h2><div class="about-grid"><p>Every listing can state its own creator-granted reuse rights. These are metadata for people to review, not automated legal enforcement. Price is informational in this pilot; checkout and payouts are not available.</p><p>Previews use a restrictive sandbox and fixed demo behavior. Submitted snippets are displayed as text, not run. Source maps can expose original source and are fetched only if a user opens the link; they do not make code safe.</p><p>Each component should declare only the capabilities it needs. This static pilot cannot enforce permissions in downstream apps. Real extension installs need a reviewed package format, explicit host permissions, sandboxing, and a backend for shared accounts and moderation.</p></div></section>
   </main>
-
-  <footer><a class="brand" href="#home"><span class="brand-mark">✳</span> GitLit</a><p>Made for little ideas with big personality.</p><a href="https://github.com/violetiam81594-hub/-Shadow-root-S.data">View this project on GitHub ↗</a></footer>
+  <footer><span class="brand">✳ GitLit</span><span>Built as an open-web pilot.</span><a href="https://github.com/violetiam81594-hub/-Shadow-root-S.data">Source repository ↗</a></footer>
 </body>
 </html>

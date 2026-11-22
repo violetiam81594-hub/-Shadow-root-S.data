@@ -1,177 +1,75 @@
-const STORAGE_KEY = 'gitlit.elements.v1';
-const MAX_SNIPPET_LENGTH = 1200;
-
-const starterElements = [
-  { id: 'starter-jelly', name: 'Jellybean hover button', kind: 'button', creator: 'GitLit demo', tags: ['playful', 'hover', 'CSS'], description: 'A tiny, bouncy button idea for interfaces that could use a little joy.', license: 'MIT', price: 0, terms: 'Free to remix with attribution. Demo listing; replace with your own terms.', snippet: '.jelly-button { border-radius: 999px; transition: transform 180ms ease; }\n.jelly-button:hover { transform: translateY(-3px) rotate(-2deg); }' },
-  { id: 'starter-spark', name: 'Small spark icon', kind: 'icon', creator: 'GitLit demo', tags: ['symbol', 'bright', 'SVG'], description: 'A simple starburst mark for your next side project or notebook.', license: 'CC0-1.0', price: 0, terms: 'Public-domain dedication for this demo element.', snippet: '<svg viewBox="0 0 24 24" aria-label="spark">✳</svg>' },
-  { id: 'starter-soft', name: 'Soft-focus stylesheet', kind: 'stylesheet', creator: 'GitLit demo', tags: ['soft', 'CSS', 'pastel'], description: 'A gentle color palette and a couple of tokens to get a new page started.', license: 'MIT', price: 0, terms: 'Keep this notice with copies. Demo listing.', snippet: ':root { --soft-ink: #322c43; --soft-paper: #fff8f1; --soft-pop: #d3b8ff; }' }
+const KEY = 'gitlit.elements.v2';
+const kinds = ['favicon', 'icon', 'font', 'stylesheet', 'button', 'web-app', 'script', 'extension', 'other'];
+const samples = [
+  { id:'sample-favicon', name:'Moonseed favicon', kind:'favicon', creator:'GitLit sample', price:0, accent:'#7654d9', description:'A simple moon-like mark for a tiny site.', license:'CC0-1.0', grants:['view','reuse','remix'], capabilities:['visual'], terms:'Sample listing; public-domain dedication for the demo.', snippet:'favicon.svg', sourceUrl:'', sourceMapUrl:'' },
+  { id:'sample-toggle', name:'Jellybean toggle', kind:'button', creator:'GitLit sample', price:0, accent:'#d76988', description:'A friendly local toggle button. Its preview only changes its own state.', license:'MIT', grants:['view','reuse','remix'], capabilities:['visual','local-toggle','preview-style'], terms:'Sample listing. Attribution appreciated.', snippet:'<button class="jelly">Toggle</button>', sourceUrl:'', sourceMapUrl:'' },
+  { id:'sample-style', name:'Soft paper tokens', kind:'stylesheet', creator:'GitLit sample', price:0, accent:'#558b72', description:'A small palette idea with a low-key green accent.', license:'CC-BY-4.0', grants:['view','reuse'], capabilities:['visual','preview-style'], terms:'Credit the creator when reusing.', snippet:':root { --paper: #fbf8f3; --accent: #558b72; }', sourceUrl:'', sourceMapUrl:'' }
 ];
-
+let elements = load();
+let filter = 'all';
 const catalog = document.querySelector('#catalog');
-const emptyState = document.querySelector('#empty-state');
-const searchInput = document.querySelector('#search-input');
-let activeKind = 'all';
-let elements = loadElements();
+const search = document.querySelector('#search');
 
-function loadElements() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (Array.isArray(stored)) return stored.filter(isValidElement);
-  } catch { /* Start with sample listings if browser storage is unavailable or invalid. */ }
-  return structuredClone(starterElements);
+function load() {
+  try { const data = JSON.parse(localStorage.getItem(KEY)); if (Array.isArray(data)) return data.filter(valid); } catch { /* use examples */ }
+  return structuredClone(samples);
 }
-
-function isValidElement(item) {
-  return item && typeof item.id === 'string' && typeof item.name === 'string' &&
-    typeof item.creator === 'string' && ['icon', 'font', 'stylesheet', 'button', 'other'].includes(item.kind);
-}
-
-function persist() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(elements));
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function makeText(tag, className, value) {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  node.textContent = value;
-  return node;
-}
-
+function valid(x) { return x && typeof x.id === 'string' && typeof x.name === 'string' && kinds.includes(x.kind); }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(elements)); return true; } catch { return false; } }
+function el(tag, cls, text) { const n=document.createElement(tag); if(cls)n.className=cls; if(text!==undefined)n.textContent=text; return n; }
+function safeUrl(value) { try { const u=new URL(value); return ['https:'].includes(u.protocol) ? u.href : ''; } catch { return ''; } }
 function render() {
-  const query = searchInput.value.trim().toLowerCase();
-  const visible = elements.filter((item) => {
-    const matchesKind = activeKind === 'all' || item.kind === activeKind;
-    const searchable = [item.name, item.creator, item.description, ...(item.tags || [])].join(' ').toLowerCase();
-    return matchesKind && searchable.includes(query);
-  });
-
-  catalog.replaceChildren();
-  emptyState.hidden = visible.length > 0;
-
-  for (const item of visible) {
-    const card = document.createElement('article');
-    card.className = 'element-card';
-    const symbol = makeText('div', `element-symbol kind-${item.kind}`, symbolFor(item.kind));
-    symbol.setAttribute('aria-hidden', 'true');
-    const header = document.createElement('div');
-    header.className = 'card-topline';
-    header.append(makeText('span', 'kind-label', item.kind), makeText('span', 'price-label', item.price > 0 ? `$${Number(item.price).toFixed(2)}` : 'Free'));
-    card.append(symbol, header, makeText('h3', '', item.name), makeText('p', 'element-description', item.description), makeText('p', 'creator-line', `by ${item.creator}`));
-    const tags = document.createElement('div');
-    tags.className = 'tags';
-    for (const tag of item.tags || []) tags.append(makeText('span', 'tag', `#${tag}`));
-    card.append(tags);
-    const details = document.createElement('details');
-    details.className = 'element-details';
-    details.append(makeText('summary', '', 'License, terms & code'));
-    details.append(makeText('p', 'terms-text', `License: ${item.license || 'Not specified'}${item.terms ? ` · ${item.terms}` : ''}`));
-    if (item.snippet) details.append(makeText('pre', 'snippet', item.snippet));
-    card.append(details);
-    catalog.append(card);
-  }
+  const q=search.value.trim().toLowerCase();
+  const found=elements.filter(x=>(filter==='all'||x.kind===filter)&&[x.name,x.kind,x.creator,x.description,...(x.grants||[])].join(' ').toLowerCase().includes(q));
+  catalog.replaceChildren(); document.querySelector('#empty').hidden=found.length>0;
+  for(const item of found) catalog.append(makeCard(item));
+}
+function makeCard(item) {
+  const card=el('article','card');
+  const preview=el('div','preview');
+  const accent=/^#[0-9a-f]{6}$/i.test(item.accent||'')?item.accent:'#7654d9';
+  preview.style.setProperty('--preview-accent',accent);
+  const frame=document.createElement('iframe');
+  frame.title=`Safe preview: ${item.name}`;
+  frame.loading='lazy';
+  frame.setAttribute('sandbox','allow-scripts');
+  frame.referrerPolicy='no-referrer';
+  frame.srcdoc=previewDocument(item,accent);
+  preview.append(frame);
+  const meta=el('div','card-meta'); meta.append(el('span','kind',item.kind),el('span','price',Number(item.price)>0?`$${Number(item.price).toFixed(2)} · creator-set`:'Free'));
+  card.append(preview,meta,el('h3','',item.name),el('p','description',item.description),el('p','creator',`Created by ${item.creator}`));
+  const rights=el('div','rights'); rights.append(el('strong','','Usage rights granted: '),el('span','',formatRights(item.grants)));
+  card.append(rights);
+  const caps=el('div','caps'); caps.append(el('strong','','Preview capabilities: '),el('span','',formatCaps(item.capabilities)));
+  card.append(caps);
+  const detail=document.createElement('details'); detail.append(el('summary','','License, terms & source'));
+  detail.append(el('p','terms',`${item.license||'License not set'}${item.terms?` — ${item.terms}`:''}`));
+  const source=safeUrl(item.sourceUrl); if(source){const a=el('a','','Open source');a.href=source;a.target='_blank';a.rel='noopener noreferrer';detail.append(a);}
+  const map=safeUrl(item.sourceMapUrl); if(map){const a=el('a','','Open source map (may reveal source)');a.href=map;a.target='_blank';a.rel='noopener noreferrer';detail.append(a);}
+  if(item.snippet) detail.append(el('pre','snippet',item.snippet));
+  card.append(detail); return card;
+}
+function formatRights(values=[]) { const labels={view:'inspect',reuse:'reuse',remix:'modify/remix',commercial:'commercial use',redistribute:'redistribute'}; return values.length?values.map(x=>labels[x]||x).join(', '):'none specified'; }
+function formatCaps(values=[]) { const labels={visual:'visual preview', 'local-toggle':'local toggle', 'preview-style':'preview-only styling'}; return values.length?values.map(x=>labels[x]||x).join(', '):'static info only'; }
+function esc(s) { return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function previewDocument(item, accent) {
+  const name=esc(item.name), kind=esc(item.kind);
+  const visual=(item.capabilities||[]).includes('visual');
+  const toggle=(item.capabilities||[]).includes('local-toggle') && ['button','web-app','extension'].includes(item.kind);
+  const style=(item.capabilities||[]).includes('preview-style');
+  const content=visual ? `<div class="mark" aria-hidden="true">${kind==='favicon'?'◒':kind==='icon'?'✳':kind==='font'?'Aa':kind==='stylesheet'?'{}':kind==='button'?'✦':kind==='script'?'⌘':'◈'}</div><h2>${name}</h2>${toggle?'<button id="toggle" type="button" aria-pressed="false">Try local toggle</button>':''}${style?'<p class="note">Accent applies only inside this preview.</p>':''}` : '<p>Visual preview not granted by creator.</p>';
+  const script=toggle?`<script>const b=document.querySelector('#toggle');b.addEventListener('click',()=>{const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(on));b.textContent=on?'On — click to reset':'Try local toggle';document.body.classList.toggle('on',on)});<\/script>`:'';
+  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;min-height:180px;display:grid;place-content:center;justify-items:center;gap:8px;font:14px system-ui,sans-serif;color:#29263a;background:#faf9fc;text-align:center}.mark{font-size:38px;color:${style?accent:'#7654d9'}}h2{font-size:14px;margin:0}button{border:0;border-radius:20px;padding:8px 14px;background:${style?accent:'#7654d9'};color:white;cursor:pointer}.on{background:#e8f4ec}.note{font-size:11px;color:#666;margin:0}</style></head><body>${content}${script}</body></html>`;
 }
 
-function symbolFor(kind) {
-  return ({ icon: '✳', font: 'Aa', stylesheet: '{ }', button: '↗', other: '✦' })[kind] || '✦';
-}
-
-document.querySelectorAll('.filter').forEach((button) => {
-  button.addEventListener('click', () => {
-    document.querySelector('.filter.active')?.classList.remove('active');
-    button.classList.add('active');
-    activeKind = button.dataset.kind;
-    render();
-  });
+document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{document.querySelector('.filter.active')?.classList.remove('active');b.classList.add('active');filter=b.dataset.kind;render();}));
+search.addEventListener('input',render);
+document.querySelector('#create-form').addEventListener('submit',event=>{
+  event.preventDefault(); const f=event.currentTarget; const d=new FormData(f); const price=Number(d.get('price'));
+  if(!Number.isFinite(price)||price<0||price>100000){document.querySelector('#status').textContent='Enter a price from $0 to $100,000.';return;}
+  const item={id:crypto.randomUUID?.()||`item-${Date.now()}`,name:String(d.get('name')).trim(),kind:String(d.get('kind')),creator:String(d.get('creator')).trim(),price,accent:String(d.get('accent')),description:String(d.get('description')).trim(),license:String(d.get('license')),terms:String(d.get('terms')).trim(),snippet:String(d.get('snippet')).slice(0,2000),sourceUrl:safeUrl(d.get('sourceUrl')),sourceMapUrl:safeUrl(d.get('sourceMapUrl')),grants:d.getAll('grant'),capabilities:d.getAll('capability'),createdAt:new Date().toISOString()};
+  elements.unshift(item); const saved=save(); f.reset(); f.elements.price.value='0'; f.elements.accent.value='#7654d9';
+  document.querySelector('#status').textContent=saved?'Added to this browser’s library. Export JSON to share it.':'Added for this session; browser storage is unavailable.'; render(); document.querySelector('#explore').scrollIntoView({behavior:'smooth'});
 });
-searchInput.addEventListener('input', render);
-
-const form = document.querySelector('#create-form');
-form.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const data = new FormData(form);
-  const price = Number(data.get('price'));
-  if (!Number.isFinite(price) || price < 0 || price > 100000) {
-    showFormMessage('Enter a valid price between $0 and $100,000.');
-    return;
-  }
-
-  const item = {
-    id: crypto.randomUUID ? crypto.randomUUID() : `element-${Date.now()}`,
-    name: String(data.get('name')).trim(),
-    kind: String(data.get('kind')),
-    creator: String(data.get('creator')).trim(),
-    tags: String(data.get('tags')).split(',').map((tag) => tag.trim().replace(/^#/, '')).filter(Boolean).slice(0, 8),
-    description: String(data.get('description')).trim(),
-    license: String(data.get('license')),
-    price,
-    terms: String(data.get('terms')).trim(),
-    snippet: String(data.get('snippet')).trim().slice(0, MAX_SNIPPET_LENGTH),
-    createdAt: new Date().toISOString()
-  };
-  elements.unshift(item);
-  const saved = persist();
-  form.reset();
-  form.elements.price.value = '0';
-  showFormMessage(saved ? 'Added! Your element is saved in this browser.' : 'Added for this session, but browser storage is unavailable. Export the library to keep it.');
-  activeKind = 'all';
-  document.querySelector('.filter.active')?.classList.remove('active');
-  document.querySelector('.filter[data-kind="all"]').classList.add('active');
-  render();
-  document.querySelector('#explore').scrollIntoView({ behavior: 'smooth' });
-});
-
-function showFormMessage(message) {
-  document.querySelector('#form-message').textContent = message;
-}
-
-document.querySelector('#export-button').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify({ format: 'gitlit-library', version: 1, elements }, null, 2)], { type: 'application/json' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'gitlit-library.json';
-  link.click();
-  URL.revokeObjectURL(link.href);
-});
-
-const githubForm = document.querySelector('#github-search-form');
-githubForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const query = new FormData(githubForm).get('q').trim();
-  const status = document.querySelector('#github-message');
-  const results = document.querySelector('#github-results');
-  const submit = githubForm.querySelector('button[type="submit"]');
-  status.textContent = 'Searching public repositories…';
-  results.replaceChildren();
-  submit.disabled = true;
-  try {
-    const response = await fetch(`https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=stars&per_page=5`, {
-      headers: { Accept: 'application/vnd.github+json' }
-    });
-    if (!response.ok) throw new Error(response.status === 403 ? 'GitHub rate limit reached. Try again later.' : `GitHub returned ${response.status}.`);
-    const data = await response.json();
-    if (!data.items?.length) status.textContent = 'No public repositories found. Try a broader search.';
-    else {
-      status.textContent = `Showing ${data.items.length} public repositories. Open a result to view its source on GitHub.`;
-      for (const repo of data.items) {
-        const link = document.createElement('a');
-        link.className = 'github-result';
-        link.href = repo.html_url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.append(makeText('strong', '', repo.full_name), makeText('span', '', repo.description || 'No description provided.'), makeText('small', '', `★ ${repo.stargazers_count} · ${repo.language || 'No language listed'}`));
-        results.append(link);
-      }
-    }
-  } catch (error) {
-    status.textContent = `${error.message} Check your connection and try again.`;
-  } finally {
-    submit.disabled = false;
-  }
-});
-
+document.querySelector('#export-button').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({format:'gitlit-elements',version:2,elements},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='gitlit-elements.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 render();
