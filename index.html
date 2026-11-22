@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10131c">
+  <meta name="description" content="GitLit is a community catalog for creative coding assets and reusable UI elements.">
+  <title>GitLit — Creative coding, shared</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="GitLit home"><span class="brand-mark">✳</span> GitLit</a>
+    <nav aria-label="Main navigation">
+      <a href="#explore">Explore</a><a href="#create">Create</a><a href="#github">GitHub</a>
+    </nav>
+    <button class="button button-small" id="export-button" type="button">Export library</button>
+  </header>
+
+  <main id="home">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">A little corner of the open web</p>
+        <h1>Make a thing.<br><span>Give it a name.</span></h1>
+        <p class="hero-intro">A community catalog for the wonderfully specific bits of creative code: icons, fonts, stylesheets, buttons, and the ideas that don't fit in a box.</p>
+        <a class="button" href="#create">Add your creation <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="art-star">✳</div><span class="art-label">MAKE / SHARE / REMIX</span></div>
+    </section>
+
+    <section class="section" id="explore">
+      <div class="section-heading">
+        <div><p class="eyebrow">The community shelf</p><h2>Explore elements</h2></div>
+        <label class="search"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Search names, tags, makers…" aria-label="Search elements"></label>
+      </div>
+      <div class="filters" role="group" aria-label="Filter by element type">
+        <button class="filter active" data-kind="all" type="button">All</button>
+        <button class="filter" data-kind="icon" type="button">Icons</button>
+        <button class="filter" data-kind="font" type="button">Fonts</button>
+        <button class="filter" data-kind="stylesheet" type="button">Stylesheets</button>
+        <button class="filter" data-kind="button" type="button">Buttons</button>
+        <button class="filter" data-kind="other" type="button">Other ideas</button>
+      </div>
+      <div id="catalog" class="catalog" aria-live="polite"></div>
+      <p class="empty-state" id="empty-state" hidden>No elements match yet. Try another search, or add the first one.</p>
+    </section>
+
+    <section class="section create-section" id="create">
+      <div class="section-heading"><div><p class="eyebrow">Put your name on it</p><h2>Share an element</h2></div><p class="section-note">Your library is saved in this browser. Export it as JSON to keep a backup or share it.</p></div>
+      <form id="create-form" class="create-form">
+        <label>Element name<input name="name" required maxlength="70" placeholder="e.g. Jellybean hover button"></label>
+        <label>Type<select name="kind" required><option value="icon">Icon</option><option value="font">Font</option><option value="stylesheet">Stylesheet</option><option value="button">Button</option><option value="other">Other creative code</option></select></label>
+        <label>Creator name<input name="creator" required maxlength="50" placeholder="Your name or handle"></label>
+        <label>Tags, separated by commas<input name="tags" maxlength="120" placeholder="pastel, hover, playful"></label>
+        <label class="wide">What is it?<textarea name="description" required maxlength="240" rows="3" placeholder="Tell people what makes your element useful or strange."></textarea></label>
+        <label>License<select name="license"><option>MIT</option><option>Apache-2.0</option><option>CC-BY-4.0</option><option>CC0-1.0</option><option>All rights reserved</option><option>Custom — see terms</option></select></label>
+        <label>Price (display only)<div class="price-input"><span>$</span><input name="price" type="number" min="0" max="100000" step="0.01" value="0" inputmode="decimal"></div></label>
+        <label class="wide">Terms and conditions<textarea name="terms" maxlength="500" rows="3" placeholder="Attribution, remixing, and use terms. This is a notice, not legal advice."></textarea></label>
+        <label class="wide">Code or asset reference <span class="optional">(optional; keep it non-executable)</span><textarea name="snippet" maxlength="1200" rows="5" placeholder="Paste a CSS snippet, SVG markup, font URL, or GitHub file URL. GitLit displays this as text; it does not execute it."></textarea></label>
+        <label class="wide consent"><input name="confirm" type="checkbox" required><span>I have permission to share this work and understand the license and terms are my responsibility.</span></label>
+        <div class="wide form-actions"><button class="button" type="submit">Add to my library <span aria-hidden="true">↗</span></button><span id="form-message" class="form-message" role="status"></span></div>
+      </form>
+    </section>
+
+    <section class="section github-section" id="github">
+      <div class="github-copy"><p class="eyebrow">Connected to the open web</p><h2>Find public GitHub projects</h2><p>Search public repositories for inspiration, then link your element to its source. GitLit never asks for a password or access token.</p></div>
+      <form id="github-search-form" class="github-search"><label for="github-query">Search GitHub repositories</label><div class="search-row"><input id="github-query" name="q" required maxlength="80" placeholder="e.g. creative coding icons"><button class="button" type="submit">Search GitHub</button></div><p class="muted" id="github-message" role="status">Uses GitHub's public repository search; API rate limits may apply.</p><div id="github-results" class="github-results" aria-live="polite"></div></form>
+    </section>
+  </main>
+
+  <footer><a class="brand" href="#home"><span class="brand-mark">✳</span> GitLit</a><p>Made for little ideas with big personality.</p><a href="https://github.com/violetiam81594-hub/-Shadow-root-S.data">View this project on GitHub ↗</a></footer>
+</body>
+</html>
